@@ -15,6 +15,7 @@
 	<description>A chatbot on wechat</description>
 	<properties>
 		<java.version>8</java.version>
+		<wechaty.version>0.1.5-SNAPSHOT</wechaty.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -27,11 +28,22 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<dependency>
+			<groupId>io.github.wechaty</groupId>
+			<artifactId>wechaty</artifactId>
+			<version>0.1.5-SNAPSHOT</version>
+		</dependency>
+
+		<!-- test dependencies-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+
+
 	</dependencies>
 
 	<build>
@@ -49,6 +61,11 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/src/test/resources</directory>
+			</testResource>
+		</testResources>
 	</build>
 
 </project>
