@@ -2,7 +2,8 @@ package au.com.charleswu.wechatbot.task;
 
 import au.com.charleswu.wechatbot.application.service.ChatbotService;
 import au.com.charleswu.wechatbot.domain.message.Message;
-import au.com.charleswu.wechatbot.domain.message.MessageMapper;
+import au.com.charleswu.wechatbot.domain.message.mapper.MessageMapper;
+import au.com.charleswu.wechatbot.domain.message.mapper.MessageMapperFactory;
 import io.github.wechaty.LoginListener;
 import io.github.wechaty.RoomJoinListener;
 import io.github.wechaty.RoomLeaveListener;
@@ -18,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -37,6 +37,9 @@ public class BotThread implements Runnable {
 
     @Autowired
     ChatbotService chatbotService;
+
+    @Autowired
+    MessageMapperFactory messageMapperFactory;
 
     @Override
     public void run() {
@@ -129,17 +132,11 @@ public class BotThread implements Runnable {
                     || from.name().contains("文件传输助手")) {
                 return;
             }
-            if (room != null) {
-//                if(StringUtils.isEmpty(mentionText)){
-//                    room.say("你想对我说什么呢？");
-//                    return;
-//                }
 
+            MessageMapper messageMapper = messageMapperFactory.initMessageMapper(message.from(), message.room());
 
-                Message messageEntity = MessageMapper.mapToDomainMessage(message);
-
-                chatbotService.handleMessage(messageEntity);
-            }
+            Message messageEntity = messageMapper.mapToMessage(message);
+            chatbotService.handleMessage(messageEntity);
         });
         wechaty.start(true);
     }

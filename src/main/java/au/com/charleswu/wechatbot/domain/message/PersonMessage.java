@@ -12,6 +12,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class PersonMessage extends Message {
 //    private final ChatChannel channel = ChatChannel.PERSONAL;
-    private Contact from;
+
     private Contact to;
 }
