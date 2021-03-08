@@ -27,3 +27,6 @@ target
 
 #intellij
 .idea
+
+#cache
+spring-boot-ehcache
