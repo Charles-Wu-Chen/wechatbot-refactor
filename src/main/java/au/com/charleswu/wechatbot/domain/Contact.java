@@ -7,5 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class Contact{
     private String Id;
+    private String alias;
     private String name;
 }

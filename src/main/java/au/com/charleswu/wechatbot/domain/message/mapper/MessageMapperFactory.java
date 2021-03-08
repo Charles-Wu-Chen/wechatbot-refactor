@@ -14,18 +14,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageMapperFactory {
     @Autowired
-    private static RoomMessageMapper roomMessageMapper;
+    private RoomMessageMapper roomMessageMapper;
 
     @Autowired
-    private static PersonalMessageMapper personalMessageMapper;
+    private PersonalMessageMapper personalMessageMapper;
 
     @Autowired
-    private static TextMessageContentMapper textMessageContentMapper;
+    private TextMessageContentMapper textMessageContentMapper;
 
     @Autowired
-    private static ImageMessageContentMapper imageMessageContentMapper;
+    private ImageMessageContentMapper imageMessageContentMapper;
 
-    public static MessageMapper initMessageMapper(Contact from, Room room) {
+    public MessageMapper initMessageMapper(Contact from, Room room) {
         if (room != null) {
             return roomMessageMapper;
         }
@@ -35,7 +35,7 @@ public class MessageMapperFactory {
         return null;
     }
 
-    public static MessageContentMapper initMessageContentMapper(String wechatyMessageType) {
+    public MessageContentMapper initMessageContentMapper(String wechatyMessageType) {
         if (MessageType.valueOf(wechatyMessageType).equals(MessageType.Text) ) {
             return textMessageContentMapper;
         }

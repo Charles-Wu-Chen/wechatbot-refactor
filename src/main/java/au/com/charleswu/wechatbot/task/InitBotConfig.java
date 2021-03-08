@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Profile("!test")
 public class InitBotConfig implements CommandLineRunner {
 
-    @Value("${wechat.token}")
+    @Value("${WECHATY_PUPPET_HOSTIE_TOKEN}")
     private String wechatyToken;
 
     @Autowired

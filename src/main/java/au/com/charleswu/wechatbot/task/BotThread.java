@@ -1,6 +1,6 @@
 package au.com.charleswu.wechatbot.task;
 
-import au.com.charleswu.wechatbot.application.service.ChatbotService;
+import au.com.charleswu.wechatbot.application.in.ChatbotService;
 import au.com.charleswu.wechatbot.domain.message.Message;
 import au.com.charleswu.wechatbot.domain.message.mapper.MessageMapper;
 import au.com.charleswu.wechatbot.domain.message.mapper.MessageMapperFactory;
@@ -9,6 +9,7 @@ import io.github.wechaty.RoomJoinListener;
 import io.github.wechaty.RoomLeaveListener;
 import io.github.wechaty.Wechaty;
 import io.github.wechaty.io.github.wechaty.schemas.EventEnum;
+import io.github.wechaty.schemas.ContactQueryFilter;
 import io.github.wechaty.schemas.FriendshipType;
 import io.github.wechaty.schemas.RoomQueryFilter;
 import io.github.wechaty.user.*;
@@ -24,6 +25,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static au.com.charleswu.wechatbot.adaptor.util.CommonWechatyUtil.getTopicByRoom;
+import static au.com.charleswu.wechatbot.adaptor.util.CommonWechatyUtil.loadContact;
 
 @Component
 public class BotThread implements Runnable {
@@ -78,14 +82,35 @@ public class BotThread implements Runnable {
         wechaty.onLogin(new LoginListener(){
             @Override
             public void handler(@NotNull ContactSelf contactSelf) {
-                logger.info("login userName:{}", contactSelf.name());
+                logger.info("login userName:{}, userId:{}", contactSelf.name(), contactSelf.getId());
                 SysConstant.loginUserName = contactSelf.name();
+                SysConstant.loginUserId = contactSelf.getId();
+                ContactQueryFilter contactQueryFilter = new ContactQueryFilter();
+                //contactQueryFilter.setId("wxid_1194601945911"); //wuchen
+                //TODO lazy load if possible
+                List<Contact> contacts = wechaty.getContactManager().findAll(contactQueryFilter);
+                contacts.stream()
+                        .forEach(contact -> {
+                            logger.info("is ready : " + contact.isReady());
+                            logger.info(String.format("contact ID:%s, contact name:%s", contact.getId(), contact.name()));
+                            if (!contact.isReady()) {
+                                contact.sync();
+                            }
+                            if (contact.getId().equals("wxid_1194601945911")) {
+                                contact.say(String.format("您的专属机器人 %s logged in", contactSelf.name()));
+                            }
+                        });
+
+                RoomQueryFilter roomQueryFilter = new RoomQueryFilter();
+                List<Room> rooms = wechaty.getRoomManager().findAll(roomQueryFilter);
+                rooms.stream().forEach(room -> logger.info("room topic:" + getTopicByRoom(room)));
+
             }
         });
 
         // 监听好友请求
         wechaty.on(EventEnum.FRIENDSHIP, friendshipList -> {
-            logger.info("lister friendship: friendshipId:{}, time:{}", friendshipList, LocalDateTime.now());
+            logger.info("listen friendship: friendshipId:{}, time:{}", friendshipList, LocalDateTime.now());
             RoomManager roomManager = SysConstant.wechatyBot.getRoomManager();
             List<Room> roomList = roomManager.findAll(new RoomQueryFilter());
             for(Object friendshipObj : friendshipList){
@@ -93,11 +118,11 @@ public class BotThread implements Runnable {
                 if(friendship.type().equals(FriendshipType.Receive)){
                     friendship.accept();
                     Contact contact = friendship.contact();
-                    contact.say("hello");
+                    contact.say("hello 机器人智囊团 欢迎您");
                     for(Room room : roomList){
                         try {
                             String topicName = room.getTopic().get();
-                            if("王者-交流群".equals(topicName)){
+                            if("机器人智囊团".equals(topicName)){
                                 room.add(contact);
                                 logger.info("room id:{}", topicName);
                             }
@@ -113,17 +138,23 @@ public class BotThread implements Runnable {
         });
         // 监听发送消息
         wechaty.onMessage(message -> {
-            logger.info("lister message, messageId:{}, isFromRoom:{}, fromName:{}, toName:{},  content:{}, time:{}", message.getId(), message.room() != null, message.from().name(), message.to().name(), message.text(), LocalDateTime.now());
+            logger.info("listen message, messageId:{}, isFromRoom:{}, fromName:{}, toName:{},  content:{}, time:{}", message.getId(), message.room() != null, message.from().name(), message.to().name(), message.text(), LocalDateTime.now());
             if(SysConstant.localMessageId.equals(message.getId())){ // 处理重复消息
+                logger.info("skip duplication message with same id");
                 return;
             }
             SysConstant.localMessageId = message.getId();
             String text = message.text(); // 消息内容
-            Contact from = message.from(); // 来自哪个用户的信息
+            Contact from = loadContact(message.from()); // 来自哪个用户的信息
             Contact toContact = message.to(); // 发送给哪个用户
             Room room = message.room();
 
+            if (from == null || from.name() == null) { //skip if contact is not ready.
+                logger.info("skip empty contact");
+                return;
+            }
             if(SysConstant.loginUserName.equals(message.from().name())){ // 自己发送出去的消息不做处理
+                logger.info("skip contact self message");
                 return;
             }
 
@@ -138,7 +169,8 @@ public class BotThread implements Runnable {
             Message messageEntity = messageMapper.mapToMessage(message);
             chatbotService.handleMessage(messageEntity);
         });
-        wechaty.start(true);
+        logger.info("bot thread wechaty start");
+        wechaty.start(false);
     }
 
 }

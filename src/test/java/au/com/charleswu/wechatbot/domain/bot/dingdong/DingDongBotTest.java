@@ -59,7 +59,7 @@ class DingDongBotTest {
 
         Message incomingMessage = PersonMessage.builder()
                 .messageType(MessageType.Text)
-                .from(new Contact("contactID", "name"))
+                .from(new Contact("contactID", "alias", "name"))
                 .content(content)
                 .build();
         dingDongBot.handleMessage(incomingMessage);

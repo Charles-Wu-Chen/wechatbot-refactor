@@ -38,14 +38,14 @@ class RoomSyncBotTest {
                 .messageType(MessageType.Text)
                 .room(new Room("roomId", "测试区危险"))
                 .content(content)
-                .from(new Contact("ID", "NAME"))
+                .from(new Contact("ID", "alias", "NAME"))
                 .build();
         roomSyncBot.handleMessage(incomingMessage);
 
 
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         verify(sendMessagePort).sendMessage(messageCaptor.capture());
-        assertTrue(messageCaptor.getValue().getContent().getContent().toString().contains("TextMessageContent"));
+        assertTrue(messageCaptor.getValue().getContent().getContent().toString().equals("[NAME]:\nTextMessageContent"));
         Assertions.assertTrue(messageCaptor.getValue() instanceof RoomMessage);
 
         assertEquals("测试区不危险", ((RoomMessage)messageCaptor.getValue()).getRoom().getTopic());

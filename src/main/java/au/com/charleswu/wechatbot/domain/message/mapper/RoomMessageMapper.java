@@ -10,19 +10,29 @@ import io.github.wechaty.user.Contact;
 import io.github.wechaty.user.Room;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutionException;
+
+import static au.com.charleswu.wechatbot.adaptor.util.CommonWechatyUtil.loadContact;
 
 @Component
 public class RoomMessageMapper implements MessageMapper {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final MessageMapperFactory messageMapperFactory;
+
+    public RoomMessageMapper(MessageMapperFactory messageMapperFactory) {
+        this.messageMapperFactory = messageMapperFactory;
+    }
+
+
     public Message mapToMessage(
             io.github.wechaty.user.Message wechatyMessage) {
 
         String text = wechatyMessage.text(); // 消息内容
-        Contact from = wechatyMessage.from(); // 来自哪个用户的信息
+        Contact from = loadContact(wechatyMessage.from()); // 来自哪个用户的信息
         Contact toContact = wechatyMessage.to(); // 发送给哪个用户
         Room room = wechatyMessage.room();
 
@@ -42,13 +52,13 @@ public class RoomMessageMapper implements MessageMapper {
         au.com.charleswu.wechatbot.domain.Room domainRoom = new au.com.charleswu.wechatbot.domain.Room(room.getId(), roomTopic);
 
         MessageContentMapper messageContentMapper =
-                MessageMapperFactory.initMessageContentMapper(wechatyMessage.type().name());
+                messageMapperFactory.initMessageContentMapper(wechatyMessage.type().name());
 
         Message resultMessage = RoomMessage.builder()
                 .content(messageContentMapper.getContentFrom(wechatyMessage))
                 .room(domainRoom)
                 .messageType(MessageType.valueOf(wechatyMessage.type().name()))
-                .from(new au.com.charleswu.wechatbot.domain.Contact(from.getId(), from.getAlias()))
+                .from(new au.com.charleswu.wechatbot.domain.Contact(from.getId(), from.getAlias(), from.name()))
                 .build();
 
         return resultMessage;
