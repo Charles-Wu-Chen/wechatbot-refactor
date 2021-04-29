@@ -4,13 +4,11 @@ package au.com.charleswu.wechatbot.application.in;
 import au.com.charleswu.wechatbot.domain.bot.dingdong.DingDongBot;
 import au.com.charleswu.wechatbot.domain.bot.roomsync.RoomSyncBot;
 import au.com.charleswu.wechatbot.domain.message.Message;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class ChatbotService {
 
     @Autowired

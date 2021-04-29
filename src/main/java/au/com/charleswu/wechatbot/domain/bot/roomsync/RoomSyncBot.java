@@ -102,6 +102,13 @@ public class RoomSyncBot implements ChatBot {
         MessageRoute route8 = new MessageRoute("3133好邻居群一", "3133好邻居群三");
         MessageRoute route9 = new MessageRoute("3133好邻居群一", "3133好邻居群二");
 
+        MessageRoute route10 = new MessageRoute("墨尔本苏州总会", "墨尔本苏州侨民会二群");
+        MessageRoute route11 = new MessageRoute("墨尔本苏州总会", "墨尔本苏州侨民会三");
+        MessageRoute route12 = new MessageRoute("墨尔本苏州侨民会二群", "墨尔本苏州侨民会三");
+        MessageRoute route13 = new MessageRoute("墨尔本苏州侨民会二群", "墨尔本苏州总会");
+        MessageRoute route14 = new MessageRoute("墨尔本苏州侨民会三", "墨尔本苏州总会");
+        MessageRoute route15 = new MessageRoute("墨尔本苏州侨民会三", "墨尔本苏州侨民会二群");
+
         List<MessageRoute> routes = new ArrayList<>();
         routes.add(route1);
         routes.add(route2);
@@ -112,6 +119,13 @@ public class RoomSyncBot implements ChatBot {
         routes.add(route7);
         routes.add(route8);
         routes.add(route9);
+
+        routes.add(route10);
+        routes.add(route11);
+        routes.add(route12);
+        routes.add(route13);
+        routes.add(route14);
+        routes.add(route15);
 
         return routes;
     }

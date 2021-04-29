@@ -2,11 +2,11 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t]%-5level %logger{36}-[%L]  - %msg%n"/>
+            <PatternLayout pattern="%d{HH:mm:ss} [%t]%-5level %logger{36}-[%L]  - %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <AsyncRoot level="INFO" includeLocation="true">
+        <AsyncRoot level="DEBUG" includeLocation="true">
             <AppenderRef ref="Console"/>
         </AsyncRoot>
         <Logger name="io.github.wechaty.grpc" level="DEBUG">
